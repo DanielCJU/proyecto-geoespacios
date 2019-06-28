@@ -2,7 +2,7 @@ module.exports = {
     database: {
         host: 'localhost',
         user: 'root',
-        password: 'pmEAF3cuWxA5',
+        password: 'admin',
         database: 'database_geo'
     }
 };
