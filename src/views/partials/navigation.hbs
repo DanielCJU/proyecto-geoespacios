@@ -26,8 +26,16 @@
 
         </li>
         
-        <li class="nav-item">
-          <a href="#" class="nav-link"><i class="fas fa-sign-in-alt"></i> Entrar</a>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false"><i class="fas fa-sign-in-alt"></i>
+            Entrar
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="/signinUser">Acceder como usuario</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="/signinAdm">Acceder como administrador</a>
+          </div>
         </li>
         <li class="nav-item">
           <a href="/signupUser" class="nav-link"><i class="fas fa-user-plus"></i> Registrarse</a>
