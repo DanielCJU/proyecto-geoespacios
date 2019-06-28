@@ -32,7 +32,7 @@ CREATE TABLE usuario(
     username VARCHAR(60) NOT NULL,
     password VARCHAR(60) NOT NULL,
     org_name VARCHAR(100) NOT NULL,
-	state BOOLEAN NOT NULL,
+	state BOOLEAN NOT NULL DEFAULT 1,
     email VARCHAR(100) NOT NULL
 );
 

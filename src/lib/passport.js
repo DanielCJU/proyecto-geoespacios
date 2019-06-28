@@ -4,7 +4,8 @@ const LocalStrategy = require('passport-local').Strategy;
 const pool = require('../database');
 const helpers = require('../lib/helpers');
 
-passport.use('local.signin', new LocalStrategy({
+//Estrategia de login de usuarios
+passport.use('local.signinUser', new LocalStrategy({
     usernameField: 'username',
     passwordField: 'password',
     passReqToCallback: true
@@ -15,7 +16,7 @@ passport.use('local.signin', new LocalStrategy({
         const user = rows[0];
         const validPassword = await helpers.matchPassword(password, user.password);
         if(validPassword){
-            done(null, user, req.flash('success', 'Bienvenido' + user.username));
+            done(null, user, req.flash('success', 'Bienvenido, ' + user.username));
         }else{
             done(null, false, req.flash('message', 'Contraseña incorrecta'));
         }
@@ -24,7 +25,31 @@ passport.use('local.signin', new LocalStrategy({
     }
 }));
 
-passport.use('local.signup', new LocalStrategy({
+//Estrategia de registro de usuarios
+passport.use('local.signupUser', new LocalStrategy({
+    usernameField: 'username',
+    passwordField: 'password',
+    passReqToCallback: true
+  }, async (req, username, password, done) => {
+  
+    //const { fullname } = req.body;
+    const { org_name } = req.body;
+    const { email } = req.body;
+    let newUser = {
+      //fullname,
+      username,
+      password,
+      org_name,
+      email
+    };
+    newUser.password = await helpers.encryptPassword(password);
+    // Saving in the Database
+    const result = await pool.query('INSERT INTO usuario SET ? ', newUser);
+    newUser.cod_user = result.insertId;
+    return done(null, newUser);
+  }));
+
+/*passport.use('local.signupAdm', new LocalStrategy({
     usernameField: 'username',
     passwordField: 'password',
     passReqToCallback:  true
@@ -41,13 +66,15 @@ passport.use('local.signup', new LocalStrategy({
     const result = await pool.query('INSERT INTO adm SET ?', [newAdmin]);
     newAdmin.id = result.insertId;
     return done(null, newAdmin);
-}));
+}));*/
 
+//Sesión serializada de usuarios
 passport.serializeUser((user, done)=>{
-    done(null, user.id);
+    done(null, user.cod_user);
 });
 
-passport.deserializeUser(async (id, done)=>{
-    const rows = await pool.query('SELECT * FROM usuario WHERE id = ?', [id]);
+//Sesión deserializada de usuarios
+passport.deserializeUser(async (cod_user, done)=>{
+    const rows = await pool.query('SELECT * FROM usuario WHERE cod_user = ?', [cod_user]);
     done(null, rows[0]);
 });

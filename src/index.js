@@ -4,6 +4,7 @@ const exhbs = require('express-handlebars');
 const path = require('path');
 const session = require('express-session');
 const validator = require('express-validator');
+const passport = require('passport');
 const flash = require('connect-flash');
 const MySQLStore = require('express-mysql-session')(session);
 
@@ -11,7 +12,7 @@ const { database } = require('./keys');
 
 // Initializations 
 const app = express();
-
+require('./lib/passport');
 
 // Settings 
 /* process.evn.PORT: quiere decir que lo que sea que este 
@@ -49,7 +50,10 @@ app.use(session({
 app.use(express.urlencoded({extended: false}));
 app.use(express.json());
 app.use(flash());
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(validator());
+
 // Global variables
 app.use((req, res, next) => {
     app.locals.message = req.flash('message');
