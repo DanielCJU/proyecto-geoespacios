@@ -4,6 +4,7 @@ const pool = require('../database');
 
 const passport = require('passport');
 const { isLoggedInUser } = require('../lib/auth');
+const { isLoggedInAdmin } = require('../lib/auth');
 
 //const passport = require('passport');
 //const { isLoggedIn } = require('../lib/auth');
@@ -45,7 +46,7 @@ router.post('/signupUser', (req, res, next) => {
     console.log(req.body);
 
     passport.authenticate('local.signupUser', {
-    successRedirect: '/profile',
+    successRedirect: '/userProfile',
     failureRedirect: '/signupUser',
     failureFlash: true
   })(req, res, next);
@@ -84,14 +85,14 @@ router.post('/signinAdm', (req, res, next) => {
   const errors = req.validationErrors();
   if (errors.length > 0) {
     req.flash('message', errors[0].msg);
-    res.redirect('/signinUser');
+    res.redirect('/signinAdm');
   }
   console.log(req.body);
-  /*passport.authenticate('local.signin', {
-    successRedirect: '/profile',
-    failureRedirect: '/signin',
+  passport.authenticate('local.signinAdm', {
+    successRedirect: '/admProfile',
+    failureRedirect: '/signinAdm',
     failureFlash: true
-  })*/(req, res, next);
+  })(req, res, next);
 });
 
 //Cierra la sesión del usuario desde '/logoutUser'
@@ -101,7 +102,21 @@ router.get('/logoutUser', (req, res) => {
 });
 
 router.get('/userProfile', isLoggedInUser, (req, res) => {
+  req.session.user = req.user;
   res.render('userProfile');
 });
+
+//Cierra la sesión del usuario desde '/logoutUser'
+router.get('/logoutUser', (req, res) => {
+  req.logOut();
+  res.redirect('/');
+});
+
+router.get('/admProfile', isLoggedInAdmin, (req, res) => {
+  req.session.user = req.adm;
+  res.render('admProfile');
+});
+
+
 
   module.exports = router;

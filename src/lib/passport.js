@@ -49,6 +49,28 @@ passport.use('local.signupUser', new LocalStrategy({
     return done(null, newUser);
   }));
 
+// Ingreso de admins
+passport.use('local.signinAdm', new LocalStrategy({
+    usernameField: 'username',
+    passwordField: 'password',
+    passReqToCallback: true
+}, async(req, username, password, done)=>{
+    console.log(req.body);
+    const rows = await pool.query('SELECT * FROM adm WHERE username = ?', [username]);
+    if(rows.length > 0){
+        const adm = rows[0];
+        console.log(adm);
+        const validPassword = await helpers.matchPassword(password, adm.password);
+        if(validPassword){
+            done(null, adm, req.flash('success', 'Bienvenido, ' + adm.username));
+        }else{
+            done(null, false, req.flash('message', 'Contraseña incorrecta'));
+        }
+    }else{
+        return done(null, false, req.flash('message', 'Ops... El nombre de usuario no existe'));
+    }
+}));
+
 /*passport.use('local.signupAdm', new LocalStrategy({
     usernameField: 'username',
     passwordField: 'password',
@@ -76,5 +98,16 @@ passport.serializeUser((user, done)=>{
 //Sesión deserializada de usuarios
 passport.deserializeUser(async (cod_user, done)=>{
     const rows = await pool.query('SELECT * FROM usuario WHERE cod_user = ?', [cod_user]);
+    done(null, rows[0]);
+});
+
+//Sesión serializada de admins
+passport.serializeUser((adm, done)=>{
+    done(null, adm.cod_admin);
+});
+
+//Sesión deserializada de admins
+passport.deserializeUser(async (cod_admin, done)=>{
+    const rows = await pool.query('SELECT * FROM adm WHERE cod_admin = ?', [cod_admin]);
     done(null, rows[0]);
 });
